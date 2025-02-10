@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>动态调控背景音乐音效</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { font-size: 24px; }
+    .control-group { margin: 15px 0; }
+    label { display: block; margin-bottom: 5px; }
+    input[type="range"] { width: 300px; }
+  </style>
+</head>
+<body>
+  <h1>实时调控音效——游戏背景音乐示例</h1>
+  <p>通过调整下方滑动条，改变“紧张度（BPM变化）”、“压迫感（低频增强）”和“危机感（高频骤升）”。</p>
+  
+  <div class="control-group">
+    <label>紧张度（BPM变化）：<span id="tensionValue">1.00</span></label>
+    <!-- 播放速率范围设置为 0.5 ~ 2.0，1.0为默认 -->
+    <input type="range" id="tensionSlider" min="0.5" max="2.0" step="0.01" value="1.0">
+  </div>
+  <div class="control-group">
+    <label>压迫感（低频增强）：<span id="lowGainValue">0.0</span> dB</label>
+    <!-- 低频增益范围设置为 0 ~ 20 dB -->
+    <input type="range" id="lowGainSlider" min="0" max="20" step="0.1" value="0">
+  </div>
+  <div class="control-group">
+    <label>危机感（高频骤升）：<span id="highGainValue">0.0</span> dB</label>
+    <!-- 高频增益范围设置为 0 ~ 20 dB -->
+    <input type="range" id="highGainSlider" min="0" max="20" step="0.1" value="0">
+  </div>
+  
+  <script>
+    // 为确保在移动设备上能启动音频，监听一次点击事件后恢复 AudioContext（参考 [&#8203;:contentReference[oaicite:0]{index=0}]）
+    document.body.addEventListener("click", function() {
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }, { once: true });
+    
+    // 创建 AudioContext（兼容部分旧浏览器）
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    // 创建两个滤波器：低架滤波器（压迫感）和高架滤波器（危机感）
+    const lowShelf = audioCtx.createBiquadFilter();
+    lowShelf.type = "lowshelf";
+    lowShelf.frequency.value = 200; // 对200Hz以下起作用
+
+    const highShelf = audioCtx.createBiquadFilter();
+    highShelf.type = "highshelf";
+    highShelf.frequency.value = 3000; // 对3000Hz以上起作用
+
+    // 接下来将构建音频节点链：音频源 -> lowShelf -> highShelf -> 输出
+    let sourceNode;
+
+    // 加载背景音乐（本示例使用 SoundHelix-Song-1，免费示例音频，采自：https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3 ）
+    fetch("SoundHelix-Song-1.mp3")
+      .then(response => response.arrayBuffer())
+      .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+      .then(audioBuffer => {
+        sourceNode = audioCtx.createBufferSource();
+        sourceNode.buffer = audioBuffer;
+        sourceNode.loop = true; // 循环播放
+        sourceNode.playbackRate.value = 1.0; // 默认播放速率为1.0
+
+        // 连接节点：先连接到低架滤波器，再依次连接到高架滤波器和最终输出
+        sourceNode.connect(lowShelf);
+        lowShelf.connect(highShelf);
+        highShelf.connect(audioCtx.destination);
+
+        sourceNode.start(0);
+      })
+      .catch(err => console.error("加载音频出错：", err));
+
+    // 获取滑条及显示数值的元素
+    const tensionSlider = document.getElementById("tensionSlider");
+    const lowGainSlider = document.getElementById("lowGainSlider");
+    const highGainSlider = document.getElementById("highGainSlider");
+    const tensionValueSpan = document.getElementById("tensionValue");
+    const lowGainValueSpan = document.getElementById("lowGainValue");
+    const highGainValueSpan = document.getElementById("highGainValue");
+
+    // 绑定滑条事件，实时更新音频参数
+    tensionSlider.addEventListener("input", function() {
+      const rate = parseFloat(this.value);
+      tensionValueSpan.textContent = rate.toFixed(2);
+      if (sourceNode) {
+        sourceNode.playbackRate.value = rate;
+      }
+    });
+
+    lowGainSlider.addEventListener("input", function() {
+      const gain = parseFloat(this.value);
+      lowGainValueSpan.textContent = gain.toFixed(1);
+      lowShelf.gain.value = gain;
+    });
+
+    highGainSlider.addEventListener("input", function() {
+      const gain = parseFloat(this.value);
+      highGainValueSpan.textContent = gain.toFixed(1);
+      highShelf.gain.value = gain;
+    });
+  </script>
+</body>
+</html>

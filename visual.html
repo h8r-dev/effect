@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>现代特效展示</title>
+  <style>
+    /* 全局样式 */
+    body {
+      margin: 0;
+      padding: 0;
+      background: #222;
+      color: #eee;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+    .controls {
+      margin: 20px;
+      text-align: center;
+    }
+    .controls button {
+      margin: 4px;
+      padding: 6px 10px;
+      background: #444;
+      border: none;
+      color: #eee;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+    .controls button:hover {
+      background: #666;
+    }
+    #phoneScreen {
+      position: relative;
+      width: 480px;
+      height: 800px;
+      background: #000;
+      border: 4px solid #555;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0,0,0,0.7);
+    }
+    #phoneScreen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #mainImage {
+      transition: transform 0.3s, filter 0.3s;
+    }
+    /* ---------------- 血色滤镜与血滴 ---------------- */
+    @keyframes bloodAnim {
+      0% { opacity: 0; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0; }
+    }
+    .blood-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: red;
+      mix-blend-mode: multiply;
+      pointer-events: none;
+      animation: bloodAnim 1.5s forwards;
+    }
+    @keyframes bloodDropAnim {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(50px); opacity: 0; }
+    }
+    .blood-drop {
+      position: absolute;
+      width: 4px;
+      height: 10px;
+      background: darkred;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: bloodDropAnim 1s ease-out forwards;
+    }
+    /* ---------------- 记忆闪回 ---------------- */
+    @keyframes flashbackAnim {
+      0% { opacity: 1; }
+      25% { opacity: 0.2; }
+      50% { opacity: 1; }
+      75% { opacity: 0.2; }
+      100% { opacity: 1; }
+    }
+    .flashback {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      pointer-events: none;
+      animation: flashbackAnim 1s forwards;
+    }
+    /* ---------------- 命运抉择光效 ---------------- */
+    @keyframes destinySweep {
+      from { left: -150%; }
+      to { left: 150%; }
+    }
+    .destiny-overlay {
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.8), transparent);
+      transform: skewX(-30deg);
+      pointer-events: none;
+      animation: destinySweep 1s forwards;
+    }
+    /* ---------------- 道德天平倾斜 ---------------- */
+    @keyframes tiltAnim {
+      0%   { transform: rotate(0deg); }
+      50%  { transform: rotate(10deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .tilt {
+      animation: tiltAnim 1s ease-in-out forwards;
+    }
+    /* ---------------- 时间流逝 ---------------- */
+    @keyframes timePassAnim {
+      0%   { filter: brightness(1); }
+      50%  { filter: brightness(0.7); }
+      100% { filter: brightness(1); }
+    }
+    .time-pass {
+      animation: timePassAnim 2s ease-in-out forwards;
+    }
+    /* ---------------- 真相揭露 ----------------
+       开始时毛玻璃效果（blur 10px），逐渐变得清晰 */
+    @keyframes truthRevealAnim {
+      0% { filter: blur(10px); }
+      100% { filter: blur(0px); }
+    }
+    .truth-reveal {
+      animation: truthRevealAnim 1.5s ease forwards;
+    }
+    /* ---------------- 子弹时间 ---------------- */
+    @keyframes bulletTimeAnim {
+      0%   { transform: scale(1); filter: blur(0); }
+      50%  { transform: scale(1.1); filter: blur(3px); }
+      100% { transform: scale(1); filter: blur(0); }
+    }
+    .bullet-time {
+      animation: bulletTimeAnim 2s ease forwards;
+    }
+    /* ---------------- 黑白反转 ---------------- */
+    @keyframes invertAnim {
+      0% { filter: none; }
+      50% { filter: grayscale(100%); }
+      100% { filter: none; }
+    }
+    .invert {
+      animation: invertAnim 1s forwards;
+    }
+    /* ---------------- 幻影重重 ---------------- */
+    @keyframes phantomAnim {
+      0% { transform: translate(0,0); opacity: 0.6; }
+      100% { transform: translate(30px,30px); opacity: 0; }
+    }
+    .phantom {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      animation: phantomAnim 2s ease-in-out 3 forwards;
+    }
+    /* ---------------- 时间倒流 ---------------- */
+    @keyframes timeReverseAnim {
+      0%   { transform: scale(1.2) rotate(5deg); filter: blur(3px) brightness(1.5); }
+      100% { transform: scale(1) rotate(0deg); filter: blur(0) brightness(1); }
+    }
+    .time-reverse {
+      animation: timeReverseAnim 2s ease-in-out forwards;
+    }
+    /* ---------------- 虚拟失真 ---------------- */
+    @keyframes virtualDistortAnim {
+      0%   { transform: none; filter: contrast(1) saturate(1); }
+      50%  { transform: translateX(10px) rotate(2deg); filter: contrast(1.5) saturate(1.5); }
+      100% { transform: none; filter: contrast(1) saturate(1); }
+    }
+    .virtual-distort {
+      animation: virtualDistortAnim 1s ease forwards;
+    }
+    /* ---------------- 粒子爆炸 ---------------- */
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      opacity: 1;
+      pointer-events: none;
+      transition: transform 1.5s linear, opacity 1.5s linear;
+    }
+  </style>
+</head>
+<body>
+  <!-- 控制按钮 -->
+  <div class="controls">
+    <button onclick="effectShake()">画面震动</button>
+    <button onclick="effectBlood()">血色滤镜</button>
+    <button onclick="effectShatter()">立绘破碎</button>
+    <button onclick="effectDistortion()">时空扭曲</button>
+    <button onclick="effectFlashback()">记忆闪回</button>
+    <button onclick="effectDestiny()">命运抉择</button>
+    <button onclick="effectTilt()">道德天平</button>
+    <button onclick="effectTimePass()">时间流逝</button>
+    <button onclick="effectTruth()">真相揭露</button>
+    <button onclick="effectBulletTime()">子弹时间</button>
+    <button onclick="effectParticle()">粒子爆炸</button>
+    <button onclick="effectInvert()">黑白反转</button>
+    <button onclick="effectPhantom()">幻影重重</button>
+    <button onclick="effectTimeReverse()">时间倒流</button>
+    <button onclick="effectVirtualDistort()">虚拟失真</button>
+  </div>
+  <!-- 模拟手机屏幕 -->
+  <div id="phoneScreen">
+    <img src="image.webp" alt="展示图片" id="mainImage">
+  </div>
+  <script>
+    const phoneScreen = document.getElementById('phoneScreen');
+    const mainImage = document.getElementById('mainImage');
+
+    // 清除所有临时效果、覆盖层与碎片，恢复主图样式
+    function resetEffects() {
+      const overlays = phoneScreen.querySelectorAll('.blood-overlay, .flashback, .destiny-overlay, .truth-reveal');
+      overlays.forEach(el => el.remove());
+      const extras = phoneScreen.querySelectorAll('.particle, .phantom, .fragment');
+      extras.forEach(el => el.remove());
+      mainImage.style.transform = '';
+      mainImage.style.filter = '';
+      mainImage.style.visibility = 'visible';
+    }
+
+    /* 1. 画面震动 - 随机偏移范围由 ±20px 提升到 ±40px */
+    function effectShake() {
+      resetEffects();
+      const duration = 500;
+      const startTime = performance.now();
+      function shake() {
+        const now = performance.now();
+        if (now - startTime < duration) {
+          const offsetX = (Math.random() - 0.5) * 40;
+          const offsetY = (Math.random() - 0.5) * 40;
+          mainImage.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+          requestAnimationFrame(shake);
+        } else {
+          mainImage.style.transform = '';
+        }
+      }
+      requestAnimationFrame(shake);
+    }
+
+    /* 2. 血色滤镜 - 增加血滴效果 */
+    function effectBlood() {
+      resetEffects();
+      const overlay = document.createElement('div');
+      overlay.className = 'blood-overlay';
+      phoneScreen.appendChild(overlay);
+      overlay.addEventListener('animationend', () => overlay.remove());
+      const numDrops = 10;
+      for (let i = 0; i < numDrops; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'blood-drop';
+        drop.style.left = Math.random() * phoneScreen.clientWidth + 'px';
+        drop.style.animationDelay = Math.random() * 0.5 + 's';
+        overlay.appendChild(drop);
+        drop.addEventListener('animationend', () => drop.remove());
+      }
+    }
+
+    /* 3. 立绘破碎 - 将图片分割成 4×4 的碎片，每块随机飞散 */
+    function effectShatter() {
+      resetEffects();
+      mainImage.style.visibility = 'hidden';
+      const rows = 4, cols = 4;
+      const fragWidth = phoneScreen.clientWidth / cols;
+      const fragHeight = phoneScreen.clientHeight / rows;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const frag = document.createElement('div');
+          frag.className = 'fragment';
+          frag.style.position = 'absolute';
+          frag.style.width = fragWidth + 'px';
+          frag.style.height = fragHeight + 'px';
+          frag.style.top = (r * fragHeight) + 'px';
+          frag.style.left = (c * fragWidth) + 'px';
+          frag.style.backgroundImage = `url(your-image.jpg)`;
+          frag.style.backgroundSize = `${phoneScreen.clientWidth}px ${phoneScreen.clientHeight}px`;
+          frag.style.backgroundPosition = `-${c * fragWidth}px -${r * fragHeight}px`;
+          phoneScreen.appendChild(frag);
+          setTimeout(() => {
+            const randX = (Math.random() - 0.5) * 400;
+            const randY = (Math.random() - 0.5) * 400;
+            const randRot = (Math.random() - 0.5) * 360;
+            frag.style.transition = 'transform 1.5s ease-out, opacity 1.5s ease-out';
+            frag.style.transform = `translate(${randX}px, ${randY}px) rotate(${randRot}deg)`;
+            frag.style.opacity = 0;
+          }, 20);
+          frag.addEventListener('transitionend', () => frag.remove());
+        }
+      }
+      setTimeout(() => { mainImage.style.visibility = 'visible'; }, 1500);
+    }
+
+    /* 4. 时空扭曲 - 增大扭曲幅度并加入滤镜 */
+    function effectDistortion() {
+      resetEffects();
+      const duration = 1000;
+      const startTime = performance.now();
+      function distort() {
+        const now = performance.now();
+        if (now - startTime < duration) {
+          const skewX = (Math.random() - 0.5) * 40;  // -20deg ~ 20deg
+          const skewY = (Math.random() - 0.5) * 40;
+          const scale = 1 + (Math.random() - 0.5) * 0.4; // 0.8 ~ 1.2
+          const hue = Math.random() * 360;
+          const blur = Math.random() * 3; // 0 ~ 3px
+          mainImage.style.transform = `skew(${skewX}deg, ${skewY}deg) scale(${scale})`;
+          mainImage.style.filter = `hue-rotate(${hue}deg) blur(${blur}px)`;
+          requestAnimationFrame(distort);
+        } else {
+          mainImage.style.transform = '';
+          mainImage.style.filter = '';
+        }
+      }
+      requestAnimationFrame(distort);
+    }
+
+    /* 5. 记忆闪回 */
+    function effectFlashback() {
+      resetEffects();
+      const flash = document.createElement('div');
+      flash.className = 'flashback';
+      phoneScreen.appendChild(flash);
+      flash.addEventListener('animationend', () => flash.remove());
+    }
+
+    /* 6. 命运抉择光效 */
+    function effectDestiny() {
+      resetEffects();
+      const overlay = document.createElement('div');
+      overlay.className = 'destiny-overlay';
+      phoneScreen.appendChild(overlay);
+      overlay.addEventListener('animationend', () => overlay.remove());
+    }
+
+    /* 7. 道德天平倾斜 */
+    function effectTilt() {
+      resetEffects();
+      mainImage.classList.add('tilt');
+      mainImage.addEventListener('animationend', () => mainImage.classList.remove('tilt'), { once: true });
+    }
+
+    /* 8. 时间流逝 */
+    function effectTimePass() {
+      resetEffects();
+      mainImage.classList.add('time-pass');
+      mainImage.addEventListener('animationend', () => mainImage.classList.remove('time-pass'), { once: true });
+    }
+
+    /* 9. 真相揭露 - 从毛玻璃效果逐渐变得清晰 */
+    function effectTruth() {
+      resetEffects();
+      mainImage.classList.add('truth-reveal');
+      mainImage.addEventListener('animationend', () => mainImage.classList.remove('truth-reveal'), { once: true });
+    }
+
+    /* 10. 子弹时间 */
+    function effectBulletTime() {
+      resetEffects();
+      mainImage.classList.add('bullet-time');
+      mainImage.addEventListener('animationend', () => mainImage.classList.remove('bullet-time'), { once: true });
+    }
+
+    /* 11. 粒子爆炸 - 在整个图片上生成多彩粒子 */
+    function effectParticle() {
+      resetEffects();
+      const numParticles = 60;
+      for (let i = 0; i < numParticles; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        const startX = Math.random() * phoneScreen.clientWidth;
+        const startY = Math.random() * phoneScreen.clientHeight;
+        particle.style.left = startX + 'px';
+        particle.style.top = startY + 'px';
+        const hue = Math.floor(Math.random() * 360);
+        particle.style.background = `hsl(${hue}, 80%, 50%)`;
+        phoneScreen.appendChild(particle);
+        const targetX = (Math.random() - 0.5) * 400;
+        const targetY = (Math.random() - 0.5) * 400;
+        setTimeout(() => {
+          particle.style.transform = `translate(${targetX}px, ${targetY}px)`;
+          particle.style.opacity = 0;
+        }, 20);
+        particle.addEventListener('transitionend', () => particle.remove());
+      }
+    }
+
+    /* 12. 黑白反转 */
+    function effectInvert() {
+      resetEffects();
+      mainImage.classList.add('invert');
+      mainImage.addEventListener('animationend', () => mainImage.classList.remove('invert'), { once: true });
+    }
+
+    /* 13. 幻影重重 - 增加动画循环时长和重复次数 */
+    function effectPhantom() {
+      resetEffects();
+      const phantom = mainImage.cloneNode(true);
+      phantom.className = 'phantom';
+      phoneScreen.appendChild(phantom);
+      phantom.addEventListener('animationend', () => phantom.remove());
+    }
+
+    /* 14. 时间倒流 - 从混乱状态逐渐恢复 */
+    function effectTimeReverse() {
+      resetEffects();
+      mainImage.classList.add('time-reverse');
+      mainImage.addEventListener('animationend', () => mainImage.classList.remove('time-reverse'), { once: true });
+    }
+
+    /* 15. 虚拟失真 */
+    function effectVirtualDistort() {
+      resetEffects();
+      mainImage.classList.add('virtual-distort');
+      mainImage.addEventListener('animationend', () => mainImage.classList.remove('virtual-distort'), { once: true });
+    }
+  </script>
+</body>
+</html>
