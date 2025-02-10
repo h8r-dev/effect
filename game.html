@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="UTF-8">
+
+    <title>手机版互动叙事Demo</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+        }
+
+        /* 手机模拟框 */
+        .phone-frame {
+            width: 480px;
+            height: 800px;
+            background: #111;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 状态栏模拟 */
+        .status-bar {
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+
+        #game-container {
+            width: 100%;
+            height: calc(100% - 40px);
+            position: relative;
+        }
+
+        #scene-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+        }
+
+        #text-panel {
+            position: absolute;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            width: 100%;
+            min-height: 120px;
+            backdrop-filter: blur(5px);
+        }
+
+        .choices {
+            margin-top: 10px;
+            display: grid;
+            gap: 8px;
+        }
+
+        button {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        #qte-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0,255,0,0.5);
+            display: none;
+        }
+
+        #timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #ff5555;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255,0,0,0.5);
+        }
+
+        /* 手机物理按键装饰 */
+        .phone-button {
+            position: absolute;
+            background: #333;
+        }
+        .power-btn {
+            right: -5px;
+            top: 100px;
+            width: 5px;
+            height: 40px;
+            border-radius: 2px;
+        }
+        .volume-btn {
+            right: -5px;
+            top: 160px;
+            width: 5px;
+            height: 60px;
+            border-radius: 2px;
+        }
+        .camera-cutout {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 20px;
+            background: #000;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>12:00</span>
+            <span>4G | 100%</span>
+        </div>
+        <div class="camera-cutout"></div>
+        <div class="phone-button power-btn"></div>
+        <div class="phone-button volume-btn"></div>
+        
+        <div id="game-container">
+            <img id="scene-bg" src="">
+            <div id="text-panel">
+                <div id="main-text"></div>
+                <div class="choices" id="choices"></div>
+            </div>
+            <div id="qte-panel"></div>
+            <div id="timer"></div>
+        </div>
+    </div>
+
+    <script>
+        // 加载剧本数据（需插入之前的JSON数据）
+        const gameData = {"meta": {
+    "variables": {
+      "courage": 0,
+      "trust": 0
+    },
+    "resources": {
+      "backgrounds": {
+        "street": "bg/city-night.webp",
+        "bar": "bg/bar.webp",
+        "warehouse": "bg/warehouse.webp"
+      },
+      "sounds": {
+        "glass_break": "sound/glass-crash.mp3",
+        "heartbeat": "sound/heartbeat.wav"
+      }
+    }
+  },
+  "script": [
+    {
+      "id": "S1",
+      "text": "深夜的巷子里，你发现跟踪者的黑影越来越近...", 
+      "bg": "street",
+      "choices": [
+        {
+          "text": "躲进旁边的酒吧",
+          "var": {"courage": +1},
+          "next": "S2A"
+        },
+        {
+          "text": "转身对峙",
+          "var": {"courage": +2},
+          "qte": "→→←",
+          "next": "S2B"
+        }
+      ]
+    },
+    {
+      "id": "S2A",
+      "text": "酒吧老板警惕地看着你，手里握着棒球棍",
+      "bg": "bar",
+      "choices": [
+        {
+          "text": "解释被跟踪的情况",
+          "var": {"trust": +1},
+          "next": "S3"
+        },
+        {
+          "text": "抢过柜台后的钥匙",
+          "var": {"trust": -1},
+          "next": "S3"
+        }
+      ]
+    },
+    {
+      "id": "S2B",
+      "text": "对方亮出匕首！快速做出反应...",
+      "bg": "street",
+      "qte": "←→←→",
+      "success": "S3",
+      "fail": "S4"
+    },
+    {
+      "id": "S3",
+      "text": "你发现重要证据：沾血的员工ID卡",
+      "bg": "warehouse",
+      "timer": 5,
+      "choices": [
+        {
+          "text": "联系警方",
+          "var": {"trust": +2},
+          "next": "END_A"
+        },
+        {
+          "text": "独自调查",
+          "var": {"courage": +3},
+          "next": "END_B"
+        }
+      ]
+    },
+    {
+      "id": "S4",
+      "text": "你的视线开始模糊，最后听到的是渐远的脚步声...",
+      "bg": "street",
+      "sound": "heartbeat",
+      "next": "END_C"
+    }
+  ],
+  "endings": {
+    "END_A": {
+      "condition": "trust >= 3",
+      "text": "警方及时赶到逮捕了真凶"
+    },
+    "END_B": {
+      "condition": "courage >= 4",
+      "text": "你在仓库深处找到了决定性证据"
+    },
+    "END_C": {
+      "condition": "default",
+      "text": "新闻报道发现无名遗体"
+    }
+  }
+};
+function checkCondition(conditionStr) {
+    if (!conditionStr) return true; // 无条件则显示
+    const conditions = conditionStr.split('&&').map(c => c.trim());
+    return conditions.every(cond => {
+        const match = cond.match(/(\w+)\s*(>=|<=|==|>|<)\s*(\d+)/);
+        if (!match) return true;
+        const [, varName, operator, value] = match;
+        const currentValue = currentState.variables[varName] || 0;
+        switch(operator) {
+            case '>=': return currentValue >= parseInt(value);
+            case '<=': return currentValue <= parseInt(value);
+            case '>': return currentValue > parseInt(value);
+            case '<': return currentValue < parseInt(value);
+            case '==': return currentValue === parseInt(value);
+            default: return true;
+        }
+    });
+}
+        let currentState = {
+            scene: 'S1',
+            variables: JSON.parse(JSON.stringify(gameData.meta.variables)),
+            qteSuccess: 0
+        };
+
+        // 核心运行引擎
+        function renderScene(sceneId) {
+            const scene = gameData.script.find(s => s.id === sceneId);
+            const bgPath = gameData.meta.resources.backgrounds[scene.bg];
+            
+            // 渲染背景和文字
+            document.getElementById('scene-bg').src = bgPath;
+            document.getElementById('main-text').innerHTML = scene.text;
+            
+            // 清空选项和状态
+            document.getElementById('choices').innerHTML = '';
+            document.getElementById('qte-panel').style.display = 'none';
+            document.getElementById('timer').innerHTML = '';
+
+            // 处理QTE
+            if (scene.qte) {
+                handleQTE(scene.qte);
+            }
+            
+            // 处理倒计时
+            if (scene.timer) {
+                startTimer(scene.timer);
+            }
+
+            // 渲染选项
+            if (scene.choices) {
+                scene.choices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.innerHTML = choice.text;
+                    if (checkCondition(choice.condition)) {
+                        btn.onclick = () => selectChoice(choice);
+                        btn.style.display = 'block';
+                    } else {
+                        btn.style.display = 'none';
+                    }
+                    document.getElementById('choices').appendChild(btn);
+                });
+            }
+        }
+
+        // 选项选择处理
+        function selectChoice(choice) {
+            // 更新变量
+            if (choice.var) {
+                Object.entries(choice.var).forEach(([key, val]) => {
+                    currentState.variables[key] += val;
+                });
+            }
+            
+            // 处理结局
+            if (choice.next.startsWith('END')) {
+                showEnding(choice.next);
+            } else {
+                renderScene(choice.next);
+            }
+        }
+
+        // QTE处理
+        function handleQTE(sequence) {
+            const qtePanel = document.getElementById('qte-panel');
+            qtePanel.style.display = 'block';
+            qtePanel.innerHTML = sequence.split('').join(' ');
+
+            let input = [];
+            document.addEventListener('keydown', function keyHandler(e) {
+                const keyMap = {37: '←', 38: '↑', 39: '→', 40: '↓'};
+                if (keyMap[e.keyCode]) {
+                    input.push(keyMap[e.keyCode]);
+                    if (input.join('') === sequence) {
+                        renderScene(currentScene.success);
+                        document.removeEventListener('keydown', keyHandler);
+                    }
+                }
+            });
+        }
+
+        // 倒计时处理
+        function startTimer(seconds) {
+            let time = seconds;
+            const timerId = setInterval(() => {
+                document.getElementById('timer').innerHTML = time;
+                if (time-- <= 0) {
+                    clearInterval(timerId);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        // 显示结局
+        function showEnding(endId) {
+            const ending = gameData.endings[endId];
+            document.getElementById('main-text').innerHTML = ending.text;
+            document.getElementById('choices').innerHTML = '<button onclick="location.reload()">重新开始</button>';
+        }
+
+        // 初始化游戏
+        renderScene(currentState.scene);
+    </script>
+</body>
+</html>
+
