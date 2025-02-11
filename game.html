@@ -255,12 +255,12 @@
             <div id="timer"></div>
         </div>
     </div>
-<script src="./gameData.js"></script>
+<script src="./gameData5.js"></script>
     <script>// 加载剧本数据（需插入之前的JSON数据）
 
 // 游戏状态管理
 let gameState = {
-    currentScene: "S1",
+    currentScene: "S17",
     currentStep: 0,
     variables: JSON.parse(JSON.stringify(gameData.meta.variables)),
 };
@@ -359,7 +359,6 @@ function endQTEChallenge(isSuccess) {
 
     const qtePanel = document.getElementById('qte-panel');
     if (isSuccess) {
-
         if (qteState.qteData.success.var) {
             Object.entries(qteState.qteData.success.var).forEach(([key, val]) => {
                 gameState.variables[key] += val;
@@ -447,16 +446,6 @@ function renderScene(sceneId) {
 
     // 渲染首步骤
     renderNextStep(scene);
-}
-
-// 选项选择处理
-function selectChoice(choice) {
-    // 更新变量
-    if (choice.var) {
-        Object.entries(choice.var).forEach(([key, val]) => {
-            gameState.currentState.variables[key] += val;
-        });
-    }
 }
 
 // 倒计时处理
@@ -557,10 +546,12 @@ function renderNextStep(scene) {
 }
 
 function handleChoice(choice) {
+  if(choice.var){
     // 更新变量
     Object.entries(choice.var).forEach(([key, val]) => {
         gameState.variables[key] += val;
     });
+  }
 
     // 跳转到下一个场景
     gameState.currentStep = 0;

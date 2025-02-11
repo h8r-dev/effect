@@ -6,9 +6,8 @@ const gameData = {
     },
     resources: {
       backgrounds: {
-        gala: "bg/gala.webp",
-        rooftop: "bg/bar.webp",
-        archive: "bg/secret-archive.webp",
+        bed: "bg/bed.webp",
+        minguo: "bg/minguo.webp",
       },
       sounds: {
         champagne: "sound/glass-clink.mp3",
@@ -19,320 +18,797 @@ const gameData = {
   scenes: [
     {
       id: "S1",
-      bg: "gala",
+      next: "S2",
+      bg: "minguo",
       steps: [
         {
           type: "narration",
-          content:
-            "宴会厅的穹顶倒映着香槟的涟漪，你锁骨间的蓝宝石项链里藏着十六核微型处理器。",
-        },
-        {
-          type: "inner",
-          content:
-            "顾临渊的深灰西装下传来极细微的电流声——他的义眼正在扫描全场生物特征",
-        },
-        {
-          type: "dialogue",
-          speaker: "名媛A",
-          content: "（嗤笑）听说沈小姐在华尔街搞砸了新能源并购案？",
+          content: "夕阳的余辉洒满山野，一片血红映衬着谢阮玉狼狈而绝望的身影。",
         },
         {
           type: "narration",
-          content: "你晃动着香槟杯，琥珀色液体在杯壁勾勒出斐波那契螺旋线",
-        },
-        {
-          type: "inner",
-          content: "三点钟方向的侍应生第七次调整领结，那是陆沉安插的暗桩",
-        },
-        {
-          type: "dialogue",
-          speaker: "你",
-          content: "（微笑）比起失败案例，我更喜欢研究顾总脑肿瘤的扩散速率呢",
+          content: "她的喉咙被大力掐住，空气稀薄，生命已濒临崩溃。",
         },
         {
           type: "narration",
           content:
-            "水晶灯突然频闪，你捕捉到顾临渊左手小指不自然的抽搐——他在启动加密协议",
+            "身体半裸在荒草间，眼前漆黑如墨，只余微弱的心跳声似乎还维持着最后的生机。",
+        },
+        {
+          type: "inner",
+          content: "不甘心，我真的不甘心！囡囡，谁来保护我的囡囡？",
+        },
+        {
+          type: "dialogue",
+          speaker: "男人A",
+          content: "妈的！这娘们怎么还没死！",
+        },
+        {
+          type: "dialogue",
+          speaker: "男人B",
+          content: "要不再来一轮？",
+        },
+        {
+          type: "dialogue",
+          speaker: "男人A",
+          content: "行了，万一做到一半死了，可够晦气的。",
+        },
+      ],
+    },
+    {
+      id: "S2",
+      bg: "minguo",
+      next: "S3",
+      steps: [
+        {
+          type: "narration",
+          content: "谢阮玉的身体剧烈挣扎，素白手指奋力拉扯对方的手臂。",
+        },
+        {
+          type: "narration",
+          content: "忽然，她触碰到了头上的银钗，一抹微凉让她意识陡然清明。",
+        },
+        {
+          type: "narration",
+          content:
+            "她咬牙切齿，奋力将银钗对准掐住她的男人脖子狠狠刺去，鲜血喷溅而出。",
+        },
+        {
+          type: "inner",
+          content: "就算死，也要拖着这些畜生一起下地狱！",
         },
         {
           type: "qte",
-          prompt: "在侍者经过时制造混乱",
-          actions: ["推", "闪", "扶"],
-          timeLimit: 7,
+          prompt: "快速连续点击刺杀按钮（正确次数：7次/秒）",
+          actions: ["刺", "刺", "刺", "刺", "刺", "刺", "刺"],
+          timeLimit: 5,
           success: {
-            var: { decision: +2 },
-            next: "S2A",
+            next: "S2X-1",
           },
           fail: {
-            var: { bond: -1 },
-            next: "S2B",
+            next: "S2X-2",
           },
         },
       ],
     },
     {
-      id: "S2A",
-      bg: "rooftop",
+      id: "S2X-1",
+      next: "S3",
+      bg: "minguo",
       steps: [
         {
           type: "narration",
           content:
-            "混乱中，你闻到夜风卷起顾临渊的雪松香，他腕表投射出的全息界面正在重组你的DNA图谱",
-        },
-        {
-          type: "inner",
-          content: "那些闪烁的碱基对序列里藏着二十年前的货轮爆炸坐标",
-        },
-        {
-          type: "dialogue",
-          speaker: "顾临渊",
-          content: "（摩挲手术刀）要听听我的脑前额叶对沈小姐的危险评估吗？",
-        },
-        {
-          type: "narration",
-          content: "他的虹膜突然分裂出三重加密环，那是脑机接口过载的征兆",
-        },
-        {
-          type: "inner",
-          content: "后颈的植入芯片开始发烫——陆沉正在黑入这场对话",
-        },
-        {
-          type: "dialogue",
-          speaker: "你",
-          content: "（撕开旗袍下摆）顾总不如先评估下我大腿内侧的微型反应堆？",
-        },
-        {
-          type: "narration",
-          content: "纳米纤维在皮肤表面生长出电磁屏蔽网，他的瞳孔骤然收缩成菱形",
-        },
-        {
-          type: "action",
-          choices: [
-            {
-              text: "用金融模型解析他的投资版图",
-              var: { decision: +3 },
-              next: "S3",
-            },
-            {
-              text: "指尖划过他后颈手术疤痕",
-              var: { bond: +2 },
-              next: "S4",
-            },
-          ],
+            "银钗精准刺入颈动脉，男人抽搐着倒下时，你摸到他腰间冰凉的枪柄",
         },
       ],
     },
     {
-      id: "S2B",
-      bg: "archive",
+      id: "S2X-2",
+      next: "S3",
+      bg: "minguo",
       steps: [
         {
           type: "narration",
-          content:
-            "档案室的恒温系统突然失效，你呼出的白雾在玻璃窗上凝结成1998年的经纬度",
-        },
-        {
-          type: "inner",
-          content: "陆沉的生物信号从通风管道渗入，带着孤儿院焚烧炉的焦油味",
-        },
-        {
-          type: "dialogue",
-          speaker: "AI语音",
-          content: "警告：检测到第23对染色体异常重组",
-        },
-        {
-          type: "narration",
-          content: "全息投影突然扭曲成儿童涂鸦，那是你们在福利院墙上画的火焰鸟",
-        },
-        {
-          type: "inner",
-          content: "后槽牙的传感器开始震动——顾临渊正在竞价收购这片地皮",
-        },
-        {
-          type: "dialogue",
-          speaker: "你",
-          content: "（对着摄像头）要烧毁这里的话，记得用镁铝混合燃烧剂",
-        },
-        {
-          type: "narration",
-          content:
-            "数据流突然具象成锁链形状，陆沉的体温正通过WiFi信号灼烧你的手机",
-        },
-        {
-          type: "action",
-          choices: [
-            {
-              text: "植入反向追踪程序",
-              var: { decision: +1 },
-              next: "S5",
-            },
-            {
-              text: "发送火灾当日摩斯密码",
-              var: { bond: +3 },
-              next: "S6",
-            },
-          ],
+          content: "失准的力道让银钗卡在锁骨处，你被甩出去时听见肋骨断裂的脆响",
         },
       ],
     },
     {
       id: "S3",
-      bg: "quantum_lab",
+      next: "S4",
+      bg: "minguo",
       steps: [
-        // 承接S2A第一个选择"用金融模型解析他的投资版图"
         {
           type: "narration",
           content:
-            "全息投影中浮现顾氏集团的暗线资金流，突然某个子账户闪现福利院的经纬度坐标",
+            "钗身湿润冰冷，手臂虽被打落，但谢阮玉没有放弃，用尽全身力气将银钗一次又一次刺进敌人。",
         },
         {
-          type: "inner",
+          type: "narration",
+          content: "血的味道弥散，她的身体僵硬，胸口插入的匕首令她痛彻心扉。",
+        },
+        {
+          type: "dialogue",
+          speaker: "黑衣人",
+          content: "妈的，这疯娘们发了什么疯！",
+        },
+        {
+          type: "narration",
+          content: "另一个人狠狠地给了她一巴掌。",
+        },
+        {
+          type: "narration",
           content:
-            "那些数字在视网膜上重组成陆沉烧伤时的医疗账单——付款方竟是顾氏慈善基金",
-        },
-        {
-          type: "qte",
-          prompt: "在数据流被抹除前截取",
-          actions: ["滤", "萃", "解", "码"],
-          timeLimit: 8,
-          success: {
-            var: { decision: +3 },
-            next: "S4", // 成功则进入记忆法庭
-          },
-          fail: {
-            var: { bond: +2 }, // 失败反而增强与陆沉的羁绊
-            next: "S5", // 跳转拍卖会赎罪线
-          },
+            "夕阳下，她逐渐意识模糊，入目的是自己带着诡异微笑、带血的双手。",
         },
       ],
     },
     {
       id: "S4",
-      bg: "neural_court",
-      // 承接S3成功路径
+      next: "S5",
+      bg: "minguo",
       steps: [
+        {
+          type: "dialogue",
+          speaker: "男人C",
+          content: "妈的！临死也不忘拖上个男的！",
+        },
         {
           type: "narration",
           content:
-            "你站在由顾氏董事会组成的陪审团前，证据链突然扭曲成婴儿的脐带",
+            "她的挣扎并没有终结困境。又一次，她拼尽全力用身旁的东西砸向男人，近乎绝望的反抗最终导致脖颈被一掌击中彻底昏厥。",
+        },
+        {
+          type: "narration",
+          content: "与此同时，丁安单膝跪倒在沈培远的房间，肩上的伤口鲜血不止。",
         },
         {
           type: "dialogue",
-          speaker: "顾临渊",
-          content:
-            "（抚摸胎儿模型）沈小姐要控告的，是二十年前没被流产的自己吗？",
+          speaker: "丁安",
+          content: "七爷。",
         },
         {
-          type: "action",
-          choices: [
-            {
-              text: "展示脑肿瘤扩散模拟图",
-              var: { decision: +2 }, // 延续金融解析路线
-              next: "END_QUEEN",
-            },
-            {
-              text: "撕开腹部露出DNA编码",
-              var: { bond: +3 }, // 转向与陆沉的基因羁绊
-              next: "S6",
-            },
-          ],
+          type: "dialogue",
+          speaker: "沈培远",
+          content: "被发现了？",
+        },
+        {
+          type: "dialogue",
+          speaker: "丁安",
+          content: "没有。",
         },
       ],
     },
     {
       id: "S5",
-      bg: "black_market",
-      // 承接S3失败路径/S2B"发送摩斯密码"选择
+      next: "S6",
+      bg: "bed",
       steps: [
         {
           type: "narration",
           content:
-            "黑市的全息屏闪烁着你儿时与陆沉约定的密码频率，但发信人ID带着顾氏水印",
+            "沈培远卧于榻上，目光淡然。手中金楠木串珠缓缓旋转，他的声音平静却透着凉薄意味。",
+        },
+        {
+          type: "dialogue",
+          speaker: "沈培远",
+          content: "你让丁志再去打听一下。",
+        },
+        {
+          type: "narration",
+          content:
+            "谢阮玉这一夜辗转难眠，她梦到了孟儒景，那个剑眉星目却令人心冷的男人。梦中的姑娘跌入了梦魇般的情景：女儿受辱，满目痛苦的记忆，恨意从胸腔深处翻涌。",
         },
         {
           type: "inner",
-          content: "那些电磁脉冲正在改写你的海马体，伪造出三人共同成长的记忆",
+          content: "卖就卖了吧……一切都毁了吧……躲不开，就跑不掉。",
+        },
+      ],
+    },
+    {
+      id: "S6",
+      bg: "bed",
+      next: "S7",
+      steps: [
+        {
+          type: "narration",
+          content:
+            "凄厉的尖叫声划破长空，谢阮玉像是惊醒般猛然坐起，将前来唤她起床的翡翠狠狠推倒在地。",
+        },
+        {
+          type: "narration",
+          content: "翡翠惊恐的看着她，随即赶忙站起，强按住她的胳膊。",
+        },
+        {
+          type: "dialogue",
+          speaker: "翡翠",
+          content: "姑娘！七爷还等着您呢。",
+        },
+        {
+          type: "narration",
+          content:
+            "老黄藤桌旁，沈培远正低头拨弄着杯壁，端坐如画。他眉目温和，一身端整暗纹长衫，袖口繁复精细，却隐藏着一股难以言喻的压迫感。",
+        },
+        {
+          type: "dialogue",
+          speaker: "沈培远",
+          content: "你怕我。",
+        },
+        {
+          type: "narration",
+          content: "似笑非笑间，他的目光意味深长地投向了谢阮玉。",
+        },
+        {
+          type: "inner",
+          content: "怕……怕什么？沉着冷静……可心跳快得像要炸开……",
+        },
+        {
+          type: "narration",
+          content:
+            "沈培远缓缓靠近她，抬手轻抚她的脸颊。他坐下后戏谑一笑，将怀里的谢阮玉揽得更紧了些，问道：",
+        },
+        {
+          type: "dialogue",
+          speaker: "沈培远",
+          content: "卿卿，谁让你来杀我的？",
+        },
+        {
+          type: "dialogue",
+          speaker: "谢阮玉",
+          content: "我没有要杀您啊！",
+        },
+        {
+          type: "narration",
+          content: "他解开肩处的衣衫，露出了被纱布包裹着的殷红伤口。",
+        },
+        {
+          type: "inner",
+          content: "昨夜？伤了他？……开什么玩笑！",
+        },
+      ],
+    },
+    {
+      id: "S7",
+      bg: "bed",
+      next: "S8",
+      steps: [
+        {
+          type: "narration",
+          content:
+            "谢阮玉的父亲沉迷赌博，将家产输光，最终将她卖给赵姓军佐换了十几块大洋。",
+        },
+        {
+          type: "narration",
+          content: "父亲在巷口指着谢阮玉和军佐比手画脚时，她正在家门口纳鞋底。",
+        },
+        {
+          type: "narration",
+          content: "她还未来得及见母亲最后一面，就被军佐拉走。",
+        },
+        {
+          type: "inner",
+          content: "重生了？哈哈哈哈，真是天降的机会啊。",
+        },
+      ],
+    },
+    {
+      id: "S8",
+      bg: "bed",
+      next: "S9",
+      steps: [
+        {
+          type: "narration",
+          content:
+            "谢阮玉长相清秀，赵军佐家娘子容不得她，被逼改将她送给沈七爷。",
+        },
+        {
+          type: "narration",
+          content: "那一年，谢阮玉十六岁，正是如花似玉年华，辗转到了保宁城。",
+        },
+        {
+          type: "narration",
+          content:
+            "谢阮玉低头看着自己白嫩的手，眼泪簌簌落下，她意识到自己重生了。",
+        },
+        {
+          type: "inner",
+          content: "这辈子，我一定不重蹈覆辙！",
+        },
+      ],
+    },
+    {
+      id: "S9",
+      bg: "bed",
+      next: "S10",
+      steps: [
+        {
+          type: "dialogue",
+          speaker: "沈七爷",
+          content: "卿卿，吻我一下，我的伤就不疼了。",
+        },
+
+        {
+          type: "qte",
+          prompt: "需在3秒内完成动作",
+          actions: ["低头", "轻啄"],
+          timeLimit: 3,
+          success: {
+            next: "S9-1",
+          },
+          fail: {
+            next: "S9-2",
+          },
+        },
+      ],
+    },
+    {
+      id: "S9-1",
+      bg: "bed",
+
+      next: "S10",
+      steps: [
+        {
+          type: "narration",
+          content: "你精准把握力度轻触他的喉结，沈七爷眼中闪过一丝异彩",
+        },
+      ],
+    },
+    {
+      id: "S9-2",
+      bg: "bed",
+
+      next: "S10",
+      steps: [
+        {
+          type: "narration",
+          content: "迟疑间被他按住后颈，带着血腥气的吻烙在唇上",
+        },
+      ],
+    },
+    {
+      id: "S10",
+      bg: "bed",
+
+      next: "S11",
+      steps: [
+        {
+          type: "narration",
+          content: "战火纷飞年代，女子生存艰难，谢阮玉决定认命。",
+        },
+        {
+          type: "narration",
+          content: "她计划效仿江娉婷，稳妥地保有地位，为自己谋得安稳未来。",
+        },
+        {
+          type: "narration",
+          content: "沈七爷的小佛堂位于西院，他每日都在这里虔诚跪拜一个小时。",
+        },
+        {
+          type: "inner",
+          content: "竟然拜佛？还这么虔诚，真是说一套做一套！",
+        },
+      ],
+    },
+    {
+      id: "S11",
+      bg: "bed",
+
+      next: "S12",
+      steps: [
+        {
+          type: "narration",
+          content:
+            "女人们在后院主屋等着沈七爷吃饭，家规严格，他不来，她们不能动筷。",
+        },
+        {
+          type: "dialogue",
+          speaker: "江娉婷",
+          content: "阮玉，七爷来了，快准备。",
+        },
+        {
+          type: "dialogue",
+          speaker: "鹅黄小袄女子",
+          content: "七爷前两天送了我一串珍珠，最大的像眼珠子。",
+        },
+        {
+          type: "dialogue",
+          speaker: "沈七爷",
+          content: "哦？正在编排爷的坏话？",
+        },
+        {
+          type: "narration",
+          content: "他轻点她的鼻尖",
+        },
+      ],
+    },
+    {
+      id: "S12",
+      bg: "bed",
+
+      next: "S13",
+      steps: [
+        {
+          type: "dialogue",
+          speaker: "鹅黄小袄女子",
+          content: "哪敢呀！",
+        },
+        {
+          type: "dialogue",
+          speaker: "沈七爷",
+          content: "淘气。",
+        },
+        {
+          type: "narration",
+          content: "他淡淡移开手臂",
+        },
+        {
+          type: "narration",
+          content: "沈七爷落座后，屋内莺莺燕燕争相表现，谢阮玉低头用餐。",
+        },
+      ],
+    },
+    {
+      id: "S13",
+      bg: "bed",
+
+      next: "S14",
+      steps: [
+        {
+          type: "narration",
+          content: "谢阮玉偶尔偷看沈七爷，他举杯暗示用餐结束。",
+        },
+        {
+          type: "narration",
+          content:
+            "沈七爷直接宣布让谢阮玉留下，其他人散去，安排她随后陪着午休。",
+        },
+        {
+          type: "narration",
+          content: "听到沈七爷提及穆参军即将来访，谢阮玉神色微微僵硬。",
+        },
+        {
+          type: "inner",
+          content: "穆参军……他又要来了……",
+        },
+      ],
+    },
+    {
+      id: "S14",
+      bg: "bed",
+
+      next: "S15",
+      steps: [
+        {
+          type: "dialogue",
+          speaker: "沈七爷",
+          content: "阮玉，过来。",
+        },
+        {
+          type: "narration",
+          content: "朝她招手",
+        },
+        {
+          type: "dialogue",
+          speaker: "谢阮玉",
+          content: "是。",
+        },
+        {
+          type: "narration",
+          content: "起身走向他",
+        },
+      ],
+    },
+    {
+      id: "S15",
+      next: "S16",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "dialogue",
+          speaker: "沈七爷",
+          content: "过几日穆参军要来，你可要替我好好张罗。",
         },
         {
           type: "action",
+          prompt: "面对穆参军的危机",
           choices: [
             {
-              text: "用假记忆反向渗透",
-              var: { decision: +1 },
-              next: "S4", // 迂回进入法庭线
+              text: "主动向沈七爷示警",
+              next: "S15A",
             },
             {
-              text: "激活烧伤疤痕的痛觉记忆",
-              var: { bond: +4 },
-              next: "END_FIRE", // 直通火焰结局
+              text: "暗中准备防身武器",
+              next: "S15B",
             },
           ],
         },
       ],
     },
     {
-      id: "S6",
-      bg: "umbilical_chamber",
-      // 仅当bond>5时解锁
+      id: "S15A",
+      next: "S16",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content: "沈七爷闻言挑眉，当晚你发现守卫增加三倍",
+        },
+      ],
+    },
+    {
+      id: "S15B",
+      next: "S16",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content: "你在袖中藏起发簪时，翡翠正端着茶盘在门外驻足",
+        },
+      ],
+    },
+    {
+      id: "S16",
+      bg: "bed",
+      next: "S17",
+
+      steps: [
+        {
+          type: "narration",
+          content: "沈七爷伸手一拉，将谢阮玉揽入怀中，笑意如常，美目含情。",
+        },
+        {
+          type: "narration",
+          content: "沈七爷低语轻咬谢阮玉耳垂，又温柔感叹她的名字像温香软玉。",
+        },
+        {
+          type: "inner",
+          content: "呵，又来了。真会装，真的以为我会动心吗？",
+        },
+        {
+          type: "narration",
+          content: "沈七爷将谢阮玉压倒在床，两人目光对视，他浅笑温柔从容。",
+        },
+        {
+          type: "inner",
+          content: "沈培远，你的套路我上辈子已经吃够了！",
+        },
+        {
+          type: "narration",
+          content:
+            "谢阮玉脑海中浮现出他的算计，表面柔情，实则暗藏心机深不可测。",
+        },
+        {
+          type: "inner",
+          content: "太恐怖了，这男人太老练了，这双眼他用几分真？几分假？",
+        },
+        {
+          type: "inner",
+          content: "我必须清醒，千万不能陷进去！",
+        },
+        {
+          type: "qte",
+          prompt: "抵抗沈七爷的亲密接触（正确顺序：偏头→闭眼→僵直）",
+          actions: ["偏", "闭", "僵"],
+          timeLimit: 4,
+          success: {
+            next: "S16A",
+          },
+          fail: {
+            next: "S16B",
+          },
+        },
+      ],
+    },
+    {
+      id: "S16A",
+      bg: "bed",
+      next: "S17",
+
+      steps: [
+        {
+          type: "narration",
+          content: "你完美伪装出青涩反应，沈七爷的指尖在你耳后多停留了三秒",
+        },
+      ],
+    },
+    {
+      id: "S16B",
+      bg: "bed",
+      next: "S17",
+
+      steps: [
+        {
+          type: "narration",
+          content: "紊乱的呼吸暴露真实情绪，他轻笑时温热气息拂过你颤抖的睫毛",
+        },
+      ],
+    },
+    {
+      id: "S17",
+      next: "S18",
+      bg: "bed",
       steps: [
         {
           type: "narration",
           content:
-            "脐带舱里漂浮着你们三人的胚胎样本，陆沉的细胞正在吞噬顾临渊的癌变组织",
+            "谢阮玉想到多年后的沈七爷，那时沈大帅刚去世，他冷漠阴狠的本性尽显无遗。",
         },
         {
-          type: "inner",
-          content: "这是当年福利院火灾里未被烧毁的原始基因契约",
+          type: "narration",
+          content:
+            "身为大帅府的继承人，他手足相残毫不留情，血染的地面猩红一片。",
         },
         {
           type: "action",
+          prompt: "隐藏真实情绪",
           choices: [
             {
-              text: "签署基因并购协议",
-              var: { decision: +3 },
-              next: "END_QUEEN", // 资本化结局
+              text: "用指尖轻抚他眉骨",
+              next: "S17A",
             },
             {
-              text: "注入自身线粒体DNA",
-              var: { bond: +5 },
-              next: "END_FIRE", // 毁灭性结局
+              text: "调整呼吸保持平稳",
+              next: "S17B",
             },
           ],
+        },
+      ],
+    },
+    {
+      id: "S17A",
+      next: "S18",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content: "沈七爷眼睫微颤，这个过于亲昵的动作让他想起死去的生母",
+        },
+      ],
+    },
+    {
+      id: "S17B",
+      next: "S18",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content: "你数着第七次呼吸时，他突然翻身将你压在雕花床柱上",
+        },
+      ],
+    },
+    {
+      id: "S18",
+      next: "S19",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "dialogue",
+          speaker: "沈培远",
+          content: "卿卿这般听话，甚好。",
+        },
+        {
+          type: "inner",
+          content: "这算什么？被他当成个会叫的瓷娃娃来养？",
+        },
+        {
+          type: "qte",
+          prompt: "保持按摩节奏（正确频率点击）",
+          actions: ["按", "松", "按", "松", "按"],
+          timeLimit: 4,
+          success: {
+            next: "S18A",
+          },
+          fail: {
+            next: "S18B",
+          },
+        },
+      ],
+    },
+    {
+      id: "S18A",
+      next: "S19",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content: "他喉结滚动三次后陷入沉睡，这是你第七次观察到这个特征",
+        },
+      ],
+    },
+    {
+      id: "S18B",
+      next: "S19",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content: "他突然扣住你手腕：伺候人都不会？翡翠没教过规矩？",
+        },
+      ],
+    },
+    {
+      id: "S19",
+      next: "S20",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content:
+            "下午，沈培远换了藏青色长衫，上襟纽绊显得挺括紧致，谢阮玉还为他挑了一副窄细金丝边眼镜。",
+        },
+        {
+          type: "action",
+          prompt: "回应屏风询问",
+          choices: [
+            {
+              text: "低头绞手帕",
+              next: "S19A",
+            },
+            {
+              text: "露出茫然眼神",
+              next: "S19B",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "S19A",
+      next: "S20",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "narration",
+          content: "沈七爷突然捏住你下巴：装傻也要有个限度",
+        },
+      ],
+    },
+    {
+      id: "S19B",
+      next: "S20",
+      steps: [
+        {
+          type: "narration",
+          content: "他摘下眼镜擦拭，这个动作代表耐心即将耗尽",
+        },
+      ],
+    },
+    {
+      id: "S20",
+      next: "S21",
+      bg: "bed",
+
+      steps: [
+        {
+          type: "inner",
+          content: "原来差点露馅，我总算是蒙混过去了。",
+        },
+        {
+          type: "narration",
+          content: "沈培远离开后，谢阮玉放下手中活计，内心掠过些怒意。",
         },
       ],
     },
   ],
   endings: [
     {
-      id: "END_QUEEN",
-      condition: "decision >= 5",
-      steps: [
-        {
-          type: "narration",
-          content:
-            "你坐在顾氏董事会的黑色王座上，监控器里陆沉正在焚烧最后一份真实档案",
-        },
-      ],
-    },
-    {
-      id: "END_FIRE",
-      condition: "bond >= 4",
-      steps: [
-        {
-          type: "narration",
-          content:
-            "陆沉的手枪抵住顾临渊太阳穴，而你握着他当年藏在玩具熊里的引爆器",
-        },
-      ],
-    },
-    {
       id: "END_TRAP",
       condition: "true",
       steps: [
         {
           type: "narration",
-          content:
-            "精神病院的束缚衣收紧时，你听见两个男人在讨论下一任棋子的人选",
+          content: "还没写完",
         },
       ],
     },
