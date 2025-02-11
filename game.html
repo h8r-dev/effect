@@ -359,8 +359,18 @@ const gameData = {
                     "prompt": "请在5秒内按顺序执行动作",
                     "actions": ["闪", "避", "格", "挡", "击"], // 正确顺序
                     "timeLimit": 5,
-                    "success": "END",
-                    "fail": "S4"
+                    "success": {
+                      "next": "END",
+                      "var": {
+                          "courage": +3
+                      },
+                    },
+                    "fail": {
+                      "next": "S4",
+                      "var": {
+                          "courage": +0
+                      },
+                    }
                 }
             ],
         },
@@ -404,14 +414,15 @@ const gameData = {
                     "choices": [{
                             "text": "联系警方",
                             "var": {
-                                "trust": +1
+                                "trust": +3
                             },
                             "next": "END"
                         },
                         {
                             "text": "去厨房拿菜刀",
                             "var": {
-                                "trust": -1
+                                "trust": -1,
+                                "courage": +2,
                             },
                             "next": "S2B"
                         }
@@ -460,18 +471,18 @@ const gameData = {
             "condition": "courage >= 4",
             "steps": [{
                   "type": "narration",
-                  "content": "你杀死了凶手！"
+                  "content": "真牛逼啊"
               },
               {
                   "type": "narration",
-                  "content": "新闻报道发现见义勇为行为"
+                  "content": "你被授予城市勇气小子称号"
               },
             ]
         },
         {
             "id": "END_C",
             "bg": "bar",
-            "condition": "default",
+            "condition": "true",
             "steps": [{
                   "type": "narration",
                   "content": "你死在了凶手刀下"
@@ -587,16 +598,32 @@ function endQTEChallenge(isSuccess) {
 
     const qtePanel = document.getElementById('qte-panel');
     if (isSuccess) {
+
+        if (qteState.qteData.success.var) {
+            Object.entries(qteState.qteData.success.var).forEach(([key, val]) => {
+                gameState.variables[key] += val;
+            });
+        }
+
         qtePanel.innerHTML = '<div style="color:#2ecc71">挑战成功！</div>';
         // 使用currentScene.success跳转
-        setTimeout(() => renderScene(qteState.qteData.success), 1000);
+        setTimeout(() => renderScene(qteState.qteData.success.next), 1000);
     } else {
         qtePanel.innerHTML = `
       <div style="color:#e74c3c">挑战失败！</div>
       <button onclick="handleQTE(qteState.qteData)">重试</button>
-      <button onclick="renderScene(qteState.qteData.fail)">继续</button>
+      <button onclick="qteFailAndContinue(qteState.qteData)">继续</button>
     `;
     }
+}
+
+function qteFailAndContinue(qteData) {
+  if (qteState.qteData.fail.var) {
+      Object.entries(qteState.qteData.fail.var).forEach(([key, val]) => {
+          gameState.variables[key] += val;
+      });
+  }
+  renderScene(qteData.fail.next)
 }
 
 // 工具函数
@@ -604,29 +631,26 @@ function shuffle(array) {
     return array.sort(() => Math.random() - 0.5);
 }
 
-function checkCondition(conditionStr) {
-    if (!conditionStr) return true; // 无条件则显示
-    const conditions = conditionStr.split('&&').map(c => c.trim());
-    return conditions.every(cond => {
-        const match = cond.match(/(\w+)\s*(>=|<=|==|>|<)\s*(\d+)/);
-        if (!match) return true;
-        const [, varName, operator, value] = match;
-        const currentValue = gameState.variables[varName] || 0;
-        switch (operator) {
-            case '>=':
-                return currentValue >= parseInt(value);
-            case '<=':
-                return currentValue <= parseInt(value);
-            case '>':
-                return currentValue > parseInt(value);
-            case '<':
-                return currentValue < parseInt(value);
-            case '==':
-                return currentValue === parseInt(value);
-            default:
-                return true;
-        }
-    });
+/**
+ * 根据传入的两个变量值、变量名称和条件表达式字符串判断条件是否成立
+ * @param {number} value1 - 第一个变量的值
+ * @param {number} value2 - 第二个变量的值
+ * @param {string} conditionStr - 使用传入变量命名构成的判别式字符串，例如 "trust < courage" 或 "trust + courage === 15"
+ * @param {string} varName1 - 第一个变量在判别式中的名称，例如 "trust"
+ * @param {string} varName2 - 第二个变量在判别式中的名称，例如 "courage"
+ * @returns {boolean} - 条件成立返回 true，否则返回 false
+ */
+function evaluateCondition(value1, value2, conditionStr, varName1, varName2) {
+  try {
+    // 使用传入的变量名称动态构造函数，该函数接收两个参数，并返回条件表达式的计算结果
+    const func = new Function(varName1, varName2, "return " + conditionStr + ";");
+    // 调用生成的函数，并将返回结果转换为布尔值返回
+    return Boolean(func(value1, value2));
+  } catch (error) {
+    console.error("表达式评估错误：", error);
+    // 如果表达式字符串不合法或执行过程中出错，则返回 false
+    return false;
+  }
 }
 
 // 核心运行引擎
@@ -637,12 +661,15 @@ function renderScene(sceneId) {
       // 根据结局分数显示不同结局
           // 默认结局
 
-      const ending = gameData.endings[0];
+      let ending = gameData.endings[0];
       // 优先检查非默认结局
+        const vname1 = Object.keys(gameData.meta.variables)[0];
+        const vname2 = Object.keys(gameData.meta.variables)[1];
 
-      for (const e of gameData.endings) {    
-        if (checkCondition(ending.condition)) {
+      for (const e of gameData.endings) {  
+        if (evaluateCondition(gameState.variables[vname1],gameState.variables[vname2], e.condition,vname1,vname2)) {
           ending = e;
+          break;
         }
       }
       showEnding(ending);
@@ -758,8 +785,8 @@ function renderNextStep(scene) {
                 if(scene.next){
                   renderScene(scene.next);
                 }else{
-                  // 步骤结束后没有后续
-                  console.warn("剧本断了！！！");
+                  // 步骤结束后且没有后续
+                  alert("全剧终！");
                 }
             }
         };
