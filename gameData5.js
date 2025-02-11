@@ -1,8 +1,8 @@
 const gameData = {
   meta: {
     variables: {
-      decision: 0, // 决策力：影响商业布局能力
-      bond: 0, // 羁绊：与关键人物的情感链接
+      strategic: 0, // 决策力：影响商业布局能力
+      affection: 0, // 羁绊：与关键人物的情感链接
     },
     resources: {
       backgrounds: {
@@ -84,9 +84,17 @@ const gameData = {
           timeLimit: 5,
           success: {
             next: "S2X-1",
+            var: {
+              strategic: "+10",
+              affection: "+2",
+            },
           },
           fail: {
             next: "S2X-2",
+            var: {
+              strategic: "+0",
+              affection: "+1",
+            },
           },
         },
       ],
@@ -335,9 +343,17 @@ const gameData = {
           timeLimit: 3,
           success: {
             next: "S9-1",
+            var: {
+              strategic: "+2",
+              affection: "+10",
+            },
           },
           fail: {
             next: "S9-2",
+            var: {
+              strategic: "+2",
+              affection: "+10",
+            },
           },
         },
       ],
@@ -808,12 +824,59 @@ const gameData = {
   ],
   endings: [
     {
-      id: "END_TRAP",
+      id: "END_A",
+      name: "江山红颜",
+      condition: "strategic_value≥80 && affection_value≥80",
+      description:
+        "你们携手登顶权力巅峰，当众宣布：这天下不要也罢，只要阿玉和桃园",
+    },
+    {
+      id: "END_B",
+      name: "血色牡丹",
+      condition: "strategic_value≥90 && affection_value≤30",
+      description:
+        "你成为暗世界的女王，孟儒景抚摸着你的发髻轻叹：我终究抓不住你的心",
+    },
+
+    {
+      id: "END_C",
+      name: "旧梦重温",
+      condition: "strategic_value≤40 && affection_value≥70",
+      description: "隐居江南小镇的他为你撑伞：阿玉，这次我们只谈风月可好？",
+    },
+
+    {
+      id: "END_D",
+      name: "轮回再启",
+      condition: "strategic_value≤20 && affection_value≤20",
+      steps: [
+        {
+          type: "narration",
+          content: "死无葬身之地，没想到最终七爷竟恨你入骨，不留半分情面...",
+        },
+      ],
+    },
+
+    {
+      id: "END_E",
+      name: "囚爱之茧",
+      condition: "strategic_value≥60 && affection_value≥95",
+      steps: [
+        {
+          type: "narration",
+          content: "他亲手给你戴上镣铐：阿玉的聪慧，还是锁在金丝笼里最安全",
+        },
+      ],
+    },
+
+    {
+      id: "END_F",
+      name: "爱而不得",
       condition: "true",
       steps: [
         {
           type: "narration",
-          content: "还没写完",
+          content: "将军死于战火，你孤老终生。",
         },
       ],
     },
