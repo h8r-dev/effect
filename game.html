@@ -260,7 +260,7 @@
 
 // 游戏状态管理
 let gameState = {
-    currentScene: "S17",
+    currentScene: "S1",
     currentStep: 0,
     variables: JSON.parse(JSON.stringify(gameData.meta.variables)),
 };
@@ -512,7 +512,10 @@ function renderNextStep(scene) {
 
         case 'action':
             const choices = document.createElement('div');
+            const prompt = document.createElement('div');
+            prompt.innerText=step.prompt;
             choices.className = 'choices';
+            choices.appendChild(prompt)
             step.choices.forEach(choice => {
                 const btn = document.createElement('button');
                 btn.textContent = choice.text;
