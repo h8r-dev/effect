@@ -629,29 +629,52 @@ const gameData = {
     },
     {
       id: "S17",
-      next: "S18",
       bg: "bed",
+
+      next: "S18",
       steps: [
         {
           type: "narration",
-          content:
-            "谢阮玉想到多年后的沈七爷，那时沈大帅刚去世，他冷漠阴狠的本性尽显无遗。",
+          content: "谢阮玉瞥了眼身旁的沈培远，他此刻正俯下身，亲了亲她的嘴角。",
         },
         {
           type: "narration",
-          content:
-            "身为大帅府的继承人，他手足相残毫不留情，血染的地面猩红一片。",
+          content: "明明他对她存有怀疑，却只是没把那份戒备表现出来。",
+        },
+        {
+          type: "dialogue",
+          speaker: "沈培远",
+          content: "没睡？",
+        },
+        {
+          type: "dialogue",
+          speaker: "谢阮玉",
+          content: "睡不着。",
+        },
+        {
+          type: "dialogue",
+          speaker: "沈培远",
+          content: "不累？",
+        },
+        {
+          type: "dialogue",
+          speaker: "谢阮玉",
+          content: "看七爷睡得沉，没敢动。",
+        },
+        {
+          type: "narration",
+          content: "沈培远缓缓起身，单手揉着额头。",
         },
         {
           type: "action",
-          prompt: "隐藏真实情绪",
+          prompt: "面对沈培远的动作",
           choices: [
             {
-              text: "用指尖轻抚他眉骨",
+              text: "主动伸手按摩",
               next: "S17A",
             },
             {
-              text: "调整呼吸保持平稳",
+              text: "低头整理被褥",
               next: "S17B",
             },
           ],
@@ -660,34 +683,74 @@ const gameData = {
     },
     {
       id: "S17A",
-      next: "S18",
       bg: "bed",
 
+      next: "S18",
       steps: [
         {
           type: "narration",
-          content: "沈七爷眼睫微颤，这个过于亲昵的动作让他想起死去的生母",
+          content: "谢阮玉见状，连忙伸手帮他按摩太阳穴。",
+        },
+        {
+          type: "qte",
+          prompt: "控制按摩力度（轻→重→轻节奏）",
+          actions: ["轻", "重", "轻", "轻", "重"],
+          timeLimit: 5,
+          success: {
+            next: "S17A1",
+          },
+          fail: {
+            next: "S17A2",
+          },
+        },
+      ],
+    },
+    {
+      id: "S17A1",
+      bg: "bed",
+
+      next: "S18",
+      steps: [
+        {
+          type: "narration",
+          content: "沈七爷喉结微动，这个细微反应代表他被取悦了",
+        },
+      ],
+    },
+    {
+      id: "S17A2",
+      bg: "bed",
+
+      next: "S18",
+      steps: [
+        {
+          type: "narration",
+          content: "他突然抓住你手腕：翡翠没教过怎么伺候人？",
         },
       ],
     },
     {
       id: "S17B",
-      next: "S18",
       bg: "bed",
 
+      next: "S18",
       steps: [
         {
           type: "narration",
-          content: "你数着第七次呼吸时，他突然翻身将你压在雕花床柱上",
+          content: "沈培远忽然捏住你后颈：躲什么？",
         },
       ],
     },
     {
       id: "S18",
-      next: "S19",
       bg: "bed",
 
+      next: "S19",
       steps: [
+        {
+          type: "narration",
+          content: "沈培远随即枕在谢阮玉腿上，闭眼享受这按摩的力度。",
+        },
         {
           type: "dialogue",
           speaker: "沈培远",
@@ -698,105 +761,47 @@ const gameData = {
           content: "这算什么？被他当成个会叫的瓷娃娃来养？",
         },
         {
-          type: "qte",
-          prompt: "保持按摩节奏（正确频率点击）",
-          actions: ["按", "松", "按", "松", "按"],
-          timeLimit: 4,
-          success: {
-            next: "S18A",
-          },
-          fail: {
-            next: "S18B",
-          },
-        },
-      ],
-    },
-    {
-      id: "S18A",
-      next: "S19",
-      bg: "bed",
-
-      steps: [
-        {
-          type: "narration",
-          content: "他喉结滚动三次后陷入沉睡，这是你第七次观察到这个特征",
-        },
-      ],
-    },
-    {
-      id: "S18B",
-      next: "S19",
-      bg: "bed",
-
-      steps: [
-        {
-          type: "narration",
-          content: "他突然扣住你手腕：伺候人都不会？翡翠没教过规矩？",
-        },
-      ],
-    },
-    {
-      id: "S19",
-      next: "S20",
-      bg: "bed",
-
-      steps: [
-        {
           type: "narration",
           content:
             "下午，沈培远换了藏青色长衫，上襟纽绊显得挺括紧致，谢阮玉还为他挑了一副窄细金丝边眼镜。",
         },
         {
           type: "action",
-          prompt: "回应屏风询问",
+          prompt: "应对屏风询问",
           choices: [
             {
-              text: "低头绞手帕",
-              next: "S19A",
+              text: "垂眸轻声道：七爷选的都好",
+              next: "S18A",
             },
             {
-              text: "露出茫然眼神",
-              next: "S19B",
+              text: "犹豫着绞紧手帕",
+              next: "S18B",
             },
           ],
         },
       ],
     },
     {
-      id: "S19A",
-      next: "S20",
+      id: "S18A",
       bg: "bed",
 
+      next: "S19",
       steps: [
         {
           type: "narration",
-          content: "沈七爷突然捏住你下巴：装傻也要有个限度",
+          content: "沈七爷忽然轻笑：卿卿倒是会打太极",
         },
       ],
     },
     {
-      id: "S19B",
-      next: "S20",
+      id: "S18B",
+      bg: "bed",
+
+      next: "S19",
       steps: [
         {
           type: "narration",
           content: "他摘下眼镜擦拭，这个动作代表耐心即将耗尽",
-        },
-      ],
-    },
-    {
-      id: "S20",
-      next: "S21",
-      bg: "bed",
-
-      steps: [
-        {
-          type: "inner",
-          content: "原来差点露馅，我总算是蒙混过去了。",
-        },
-        {
-          type: "narration",
-          content: "沈培远离开后，谢阮玉放下手中活计，内心掠过些怒意。",
         },
       ],
     },
