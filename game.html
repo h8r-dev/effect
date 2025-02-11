@@ -275,7 +275,7 @@ const gameData = {
             }
         }
     },
-    "script": [{
+    "scenes": [{
             "id": "S1",
             "bg": "street",
             "next": "S1",
@@ -678,7 +678,7 @@ function renderScene(sceneId) {
 
     gameState.currentScene = sceneId;
     currentStep = 0; // 重置步骤索引
-    const scene = gameData.script.find(s => s.id === sceneId);
+    const scene = gameData.scenes.find(s => s.id === sceneId);
     const bgPath = gameData.meta.resources.backgrounds[scene.bg];
 
     // 渲染背景
