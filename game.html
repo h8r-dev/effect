@@ -2,7 +2,6 @@
 <html>
 <head>
         <meta charset="UTF-8">
-
     <title>手机版互动叙事Demo</title>
     <style>
         body {
@@ -175,6 +174,65 @@
   transform: translateX(-50%);
   font-size: 18px;
 }
+/* 对话气泡动态生成 */
+.dialogue-bubble:nth-child(odd) {
+  margin-left: 20px;
+}
+.dialogue-bubble:nth-child(even) {
+  margin-right: 20px;
+}
+.step-container {
+  animation: slideIn 0.3s ease;
+}
+.narration {
+  color: #95a5a6;
+  font-style: italic;
+  margin: 15px 0;
+  line-height: 1.6;
+}
+
+.dialogue-bubble {
+  background: rgba(40,40,40,0.9);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px 0;
+  position: relative;
+}
+
+.dialogue-bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 15px;
+  border: 8px solid transparent;
+  border-right-color: rgba(40,40,40,0.9);
+}
+
+.speaker {
+  color: #3498db;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.inner-thought {
+  color: #e67e22;
+  border-left: 3px solid;
+  padding-left: 15px;
+  margin: 20px 0;
+  font-style: italic;
+}
+
+.step-container {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+}
     </style>
 </head>
 <body>
@@ -198,136 +256,265 @@
         </div>
     </div>
 
-    <script>
-        // 加载剧本数据（需插入之前的JSON数据）
-        const gameData = {"meta": {
-    "variables": {
-      "courage": 0,
-      "trust": 0
+    <script>// 加载剧本数据（需插入之前的JSON数据）
+const gameData = {
+    "meta": {
+        "variables": {
+            "courage": 0,
+            "trust": 0
+        },
+        "resources": {
+            "backgrounds": {
+                "street": "bg/city-night.webp",
+                "bar": "bg/bar.webp",
+                "warehouse": "bg/warehouse.webp"
+            },
+            "sounds": {
+                "glass_break": "sound/glass-crash.mp3",
+                "heartbeat": "sound/heartbeat.wav"
+            }
+        }
     },
-    "resources": {
-      "backgrounds": {
-        "street": "bg/city-night.webp",
-        "bar": "bg/bar.webp",
-        "warehouse": "bg/warehouse.webp"
-      },
-      "sounds": {
-        "glass_break": "sound/glass-crash.mp3",
-        "heartbeat": "sound/heartbeat.wav"
-      }
-    }
-  },
-  "script": [
-    {
-      "id": "S1",
-      "text": "深夜的巷子里，你发现跟踪者的黑影越来越近...", 
-      "bg": "street",
-      "choices": [
-        {
-          "text": "躲进旁边的酒吧",
-          "var": {"courage": +1},
-          "next": "S2A"
+    "script": [{
+            "id": "S1",
+            "bg": "street",
+            "next": "S1",
+            "steps": [{
+                    "type": "narration",
+                    "content": "深夜的巷子里，你发现跟踪者的黑影越来越近..."
+                },
+                {
+                    "type": "inner",
+                    "content": "心跳声在耳膜里鼓动，后颈的汗毛已经竖了起来"
+                },
+                {
+                    "type": "action",
+                    "choices": [{
+                            "text": "躲进旁边的酒吧",
+                            "var": {
+                                "courage": +1
+                            },
+                            "next": "S2A"
+                        },
+                        {
+                            "text": "转身对峙",
+                            "var": {
+                                "courage": +2
+                            },
+                            "next": "S2B"
+                        }
+                    ]
+                }
+            ]
         },
         {
-          "text": "转身对峙",
-          "var": {"courage": +2},
-          "next": "S2B"
-        }
-      ]
-    },
-    {
-      "id": "S2A",
-      "text": "酒吧老板警惕地看着你，手里握着棒球棍",
-      "bg": "bar",
-      "choices": [
+            "id": "S2A",
+            "bg": "bar",
+            "next": "S1",
+            "steps": [{
+                    "type": "dialogue",
+                    "speaker": "酒保",
+                    "content": "把门关上！你想引来那些家伙吗？"
+                },
+                {
+                    "type": "narration",
+                    "content": "生锈的门轴发出刺耳的吱呀声，你闻到了威士忌的酸腐味"
+                },
+                {
+                    "type": "action",
+                    "choices": [{
+                            "text": "解释被跟踪的情况",
+                            "var": {
+                                "trust": +1
+                            },
+                            "next": "S3"
+                        },
+                        {
+                            "text": "抢过柜台后的钥匙",
+                            "var": {
+                                "trust": -2
+                            },
+                            "next": "S5"
+                        }
+                    ]
+                }
+            ]
+        },
+
         {
-          "text": "解释被跟踪的情况",
-          "var": {"trust": +1},
-          "next": "S3"
+            "id": "S2B",
+            "bg": "street",
+            "next": "S2B",
+            "steps": [{
+                    "type": "dialogue",
+                    "speaker": "黑衣人",
+                    "content": "你他妈的找死啊，我弄死你!!!"
+                },
+                {
+                    "type": "narration",
+                    "content": "对方亮出匕首！你准备快速做出反应..."
+                },
+                {
+                    "type": "qte",
+                    "prompt": "请在5秒内按顺序执行动作",
+                    "actions": ["闪", "避", "格", "挡", "击"], // 正确顺序
+                    "timeLimit": 5,
+                    "success": "END",
+                    "fail": "S4"
+                }
+            ],
+        },
+
+
+        {
+            "id": "S5",
+            "steps": [{
+                    "type": "narration",
+                    "content": "你发现这个钥匙，居然是个非常趁手的微型武器"
+                },
+                {
+                    "type": "narration",
+                    "content": "身为武林高手的你，缺的就是一把武器"
+                },
+                {
+                    "type": "narration",
+                    "content": "此时，黑衣人推门进来了"
+                },
+              ],
+            "bg": "street",
+            "next": "S2B"
+        },
+
+        {
+            "id": "S3",
+            "bg": "bar",
+            "next": "S3",
+            "steps": [
+                {
+                    "type": "narration",
+                    "content": "酒保听了解释，紧闭大门"
+                },
+                {
+                    "type": "narration",
+                    "content": "酒保问你，你准备怎么办"
+                },
+                {
+                    "type": "action",
+                    "prompt": " 请做出你的选择",
+                    "choices": [{
+                            "text": "联系警方",
+                            "var": {
+                                "trust": +1
+                            },
+                            "next": "END"
+                        },
+                        {
+                            "text": "去厨房拿菜刀",
+                            "var": {
+                                "trust": -1
+                            },
+                            "next": "S2B"
+                        }
+                    ]
+                }
+            ]
         },
         {
-          "text": "抢过柜台后的钥匙",
-          "var": {"trust": -1},
-          "next": "S3"
+            "id": "S4",
+            "steps": [{
+                    "type": "narration",
+                    "content": "你腹部中刀，血流不止"
+                },
+                {
+                    "type": "dialogue",
+                    "speaker": "你",
+                    "content": "我靠，怎么流了这么多血，不该逞强的，TMD，这波死了。。。"
+                },
+                {
+                    "type": "narration",
+                    "content": "你的视线开始模糊，最后听到的是渐远的脚步声..."
+                },
+              ],
+            "bg": "street",
+            "next": "END"
         }
-      ]
-    },
-    {
-      "id": "S2B",
-      "text": "对方亮出匕首！快速做出反应...",
-      "bg": "street",
-      "qte": {
-        "prompt": "请在5秒内按顺序执行动作",
-        "actions": ["闪","避","格","挡","击"], // 正确顺序
-        "timeLimit": 5
-      },
-      "success": "S3",
-      "fail": "S4"
-    },
-    {
-      "id": "S3",
-      "text": "你发现重要证据：沾血的员工ID卡",
-      "bg": "warehouse",
-      "timer": 5,
-      "choices": [
+    ],
+    "endings": [
         {
-          "text": "联系警方",
-          "var": {"trust": +2},
-          "next": "END_A"
+            "id": "END_A",
+            "bg": "bar",
+            "condition": "trust >= 3",
+            "steps": [{
+                    "type": "narration",
+                    "content": "警方及时赶到逮捕了真凶"
+                },
+                {
+                    "type": "narration",
+                    "content": "你被表彰为城市英雄！"
+                },
+              ]
         },
         {
-          "text": "独自调查",
-          "var": {"courage": +3},
-          "next": "END_B"
-        }
+            "id": "END_B",
+            "bg": "bar",
+            "condition": "courage >= 4",
+            "steps": [{
+                  "type": "narration",
+                  "content": "你杀死了凶手！"
+              },
+              {
+                  "type": "narration",
+                  "content": "新闻报道发现见义勇为行为"
+              },
+            ]
+        },
+        {
+            "id": "END_C",
+            "bg": "bar",
+            "condition": "default",
+            "steps": [{
+                  "type": "narration",
+                  "content": "你死在了凶手刀下"
+              },
+              {
+                  "type": "narration",
+                  "content": "新闻报道发现无名遗体"
+              },
+            ]
+        },
       ]
-    },
-    {
-      "id": "S4",
-      "text": "你的视线开始模糊，最后听到的是渐远的脚步声...",
-      "bg": "street",
-      "sound": "heartbeat",
-      "next": "END_C"
-    }
-  ],
-  "endings": {
-    "END_A": {
-      "condition": "trust >= 3",
-      "text": "警方及时赶到逮捕了真凶"
-    },
-    "END_B": {
-      "condition": "courage >= 4",
-      "text": "你在仓库深处找到了决定性证据"
-    },
-    "END_C": {
-      "condition": "default",
-      "text": "新闻报道发现无名遗体"
-    }
-  }
 };
 
 
+// 游戏状态管理
+let gameState = {
+    currentScene: "S1",
+    currentStep: 0,
+    variables: JSON.parse(JSON.stringify(gameData.meta.variables)),
+};
+
 // 新增QTE游戏状态
 let qteState = {
-  isActive: false,
-  correctOrder: [],
-  userInput: [],
-  timer: null
+    isActive: false,
+    correctOrder: [],
+    userInput: [],
+    timer: null,
+    qteData: {}
 };
 
 // 修改后的QTE处理函数
 function handleQTE(qteData) {
-    const qtePanel = document.getElementById('qte-panel');
-    qtePanel.style.display = 'block'; // 确保显示面板
-    
+    const textPanel = document.getElementById('text-panel');
     // 清空旧内容
-    qtePanel.innerHTML = `
+    textPanel.innerHTML = `
+    <div id="qte-panel">
         <div class="qte-instruction">
             <p>${qteData.prompt}</p>
             <div class="correct-sequence">正确顺序：${qteData.actions.join(' → ')}</div>
             <button id="startQTE">开始挑战</button>
-        </div>
+        </div></div>
     `;
+    qteState.qteData = qteData;
 
     // 绑定开始按钮事件
     document.getElementById('startQTE').addEventListener('click', () => {
@@ -336,17 +523,18 @@ function handleQTE(qteData) {
 }
 
 function startQTEChallenge(qteData) {
-  qteState = {
-    isActive: true,
-    correctOrder: qteData.actions,
-    userInput: [],
-    timer: null
-  };
+    qteState = {
+        isActive: true,
+        correctOrder: qteData.actions,
+        userInput: [],
+        timer: null,
+        qteData: qteData
+    };
 
-  const shuffledActions = shuffle([...qteData.actions]);
-  
-  const qtePanel = document.getElementById('qte-panel');
-  qtePanel.innerHTML = `
+    const shuffledActions = shuffle([...qteData.actions]);
+
+    const qtePanel = document.getElementById('qte-panel');
+    qtePanel.innerHTML = `
     <div class="qte-grid">
       ${shuffledActions.map(action => `
         <button class="qte-btn" data-action="${action}">${action}</button>
@@ -355,77 +543,65 @@ function startQTEChallenge(qteData) {
     <div id="qte-timer" style="color:white;">剩余时间: ${qteData.timeLimit}</div>
   `;
 
-  document.querySelectorAll('.qte-btn').forEach(btn => {
-    btn.onclick = () => handleQTEClick(btn, qteData);
-  });
+    document.querySelectorAll('.qte-btn').forEach(btn => {
+        btn.onclick = () => handleQTEClick(btn, qteData);
+    });
 
-  // 启动倒计时
-  let timeLeft = qteData.timeLimit;
-  qteState.timer = setInterval(() => {
-    timeLeft--;
-    document.getElementById('qte-timer').textContent = `剩余时间: ${timeLeft}`;
-    
-    if(timeLeft <= 0) {
-      endQTEChallenge(false);
-    }
-  }, 1000);
+    // 启动倒计时
+    let timeLeft = qteData.timeLimit;
+    qteState.timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('qte-timer').textContent = `剩余时间: ${timeLeft}`;
+
+        if (timeLeft <= 0) {
+            endQTEChallenge(false);
+        }
+    }, 1000);
 }
 
 function handleQTEClick(btn, qteData) {
-  if(!qteState.isActive) return;
+    if (!qteState.isActive) return;
 
-  const selectedAction = btn.dataset.action;
-  const expectedAction = qteState.correctOrder[qteState.userInput.length];
+    const selectedAction = btn.dataset.action;
+    const expectedAction = qteState.correctOrder[qteState.userInput.length];
 
-  if(selectedAction === expectedAction) {
-    btn.style.background = '#2ecc71';
-    qteState.userInput.push(selectedAction);
-    
-    if(qteState.userInput.length === qteState.correctOrder.length) {
-      endQTEChallenge(true);
+    if (selectedAction === expectedAction) {
+        btn.style.background = '#2ecc71';
+        qteState.userInput.push(selectedAction);
+
+        if (qteState.userInput.length === qteState.correctOrder.length) {
+            endQTEChallenge(true);
+        }
+    } else {
+        btn.style.background = '#e74c3c';
+        endQTEChallenge(false);
     }
-  } else {
-    btn.style.background = '#e74c3c';
-    endQTEChallenge(false);
-  }
 
-  btn.disabled = true;
+    btn.disabled = true;
 }
 
 // 修改endQTEChallenge函数
 function endQTEChallenge(isSuccess) {
-  clearInterval(qteState.timer);
-  qteState.isActive = false;
+    clearInterval(qteState.timer);
+    qteState.isActive = false;
 
-  // 获取当前场景数据
-  const currentScene = gameData.script.find(
-    s => s.id === currentState.scene
-  );
-
-  const qtePanel = document.getElementById('qte-panel');
-  if(isSuccess) {
-    qtePanel.innerHTML = '<div style="color:#2ecc71">挑战成功！</div>';
-    // 使用currentScene.success跳转
-    setTimeout(() => renderScene(currentScene.success), 1000);
-  } else {
-    qtePanel.innerHTML = `
+    const qtePanel = document.getElementById('qte-panel');
+    if (isSuccess) {
+        qtePanel.innerHTML = '<div style="color:#2ecc71">挑战成功！</div>';
+        // 使用currentScene.success跳转
+        setTimeout(() => renderScene(qteState.qteData.success), 1000);
+    } else {
+        qtePanel.innerHTML = `
       <div style="color:#e74c3c">挑战失败！</div>
-      <button onclick="retryQTE()">重试</button>
+      <button onclick="handleQTE(qteState.qteData)">重试</button>
+      <button onclick="renderScene(qteState.qteData.fail)">继续</button>
     `;
-  }
-}
-
-// 修改retryQTE函数
-function retryQTE() {
-  const currentScene = gameData.script.find(
-    s => s.id === currentState.scene
-  );
-  handleQTE(currentScene.qte);
+    }
 }
 
 // 工具函数
 function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
+    return array.sort(() => Math.random() - 0.5);
 }
 
 function checkCondition(conditionStr) {
@@ -435,106 +611,175 @@ function checkCondition(conditionStr) {
         const match = cond.match(/(\w+)\s*(>=|<=|==|>|<)\s*(\d+)/);
         if (!match) return true;
         const [, varName, operator, value] = match;
-        const currentValue = currentState.variables[varName] || 0;
-        switch(operator) {
-            case '>=': return currentValue >= parseInt(value);
-            case '<=': return currentValue <= parseInt(value);
-            case '>': return currentValue > parseInt(value);
-            case '<': return currentValue < parseInt(value);
-            case '==': return currentValue === parseInt(value);
-            default: return true;
+        const currentValue = gameState.variables[varName] || 0;
+        switch (operator) {
+            case '>=':
+                return currentValue >= parseInt(value);
+            case '<=':
+                return currentValue <= parseInt(value);
+            case '>':
+                return currentValue > parseInt(value);
+            case '<':
+                return currentValue < parseInt(value);
+            case '==':
+                return currentValue === parseInt(value);
+            default:
+                return true;
         }
     });
 }
-        let currentState = {
-            scene: 'S1',
-            variables: JSON.parse(JSON.stringify(gameData.meta.variables)),
-            qteSuccess: 0
-        };
 
-        // 核心运行引擎
-        function renderScene(sceneId) {
-              console.log('场景跳转:', currentState.scene, '->', sceneId); // 调试日志
-  currentState.scene = sceneId;
-            const scene = gameData.script.find(s => s.id === sceneId);
-            const bgPath = gameData.meta.resources.backgrounds[scene.bg];
-            
-            // 渲染背景和文字
-            document.getElementById('scene-bg').src = bgPath;
-            document.getElementById('main-text').innerHTML = scene.text;
-            
-            // 清空选项和状态
-            document.getElementById('choices').innerHTML = '';
-            document.getElementById('qte-panel').style.display = 'none';
-            document.getElementById('timer').innerHTML = '';
+// 核心运行引擎
+function renderScene(sceneId) {
+    console.log('场景跳转:', gameState.currentScene, '->', sceneId); // 调试日志
 
-    // QTE 处理逻辑修正
-    if (scene.qte) {
-        document.getElementById('qte-panel').style.display = 'block';
-        handleQTE(scene.qte);
-    } else {
-        document.getElementById('qte-panel').style.display = 'none';
+    if(sceneId == 'END') {
+      // 根据结局分数显示不同结局
+          // 默认结局
+
+      const ending = gameData.endings[0];
+      // 优先检查非默认结局
+
+      for (const e of gameData.endings) {    
+        if (checkCondition(ending.condition)) {
+          ending = e;
+        }
+      }
+      showEnding(ending);
+      return;
     }
-            
-            // 处理倒计时
-            if (scene.timer) {
-                startTimer(scene.timer);
-            }
 
-            // 渲染选项
-            if (scene.choices) {
-                scene.choices.forEach(choice => {
-                    const btn = document.createElement('button');
-                    btn.innerHTML = choice.text;
-                    if (checkCondition(choice.condition)) {
-                        btn.onclick = () => selectChoice(choice);
-                        btn.style.display = 'block';
-                    } else {
-                        btn.style.display = 'none';
-                    }
-                    document.getElementById('choices').appendChild(btn);
-                });
-            }
+    gameState.currentScene = sceneId;
+    currentStep = 0; // 重置步骤索引
+    const scene = gameData.script.find(s => s.id === sceneId);
+    const bgPath = gameData.meta.resources.backgrounds[scene.bg];
+
+    // 渲染背景
+    document.getElementById('scene-bg').src = bgPath;
+
+    // 渲染首步骤
+    renderNextStep(scene);
+}
+
+// 选项选择处理
+function selectChoice(choice) {
+    // 更新变量
+    if (choice.var) {
+        Object.entries(choice.var).forEach(([key, val]) => {
+            gameState.currentState.variables[key] += val;
+        });
+    }
+}
+
+// 倒计时处理
+function startTimer(seconds) {
+    let time = seconds;
+    const timerId = setInterval(() => {
+        document.getElementById('timer').innerHTML = time;
+        if (time-- <= 0) {
+            clearInterval(timerId);
+            handleTimeout();
         }
+    }, 1000);
+}
 
-        // 选项选择处理
-        function selectChoice(choice) {
-            // 更新变量
-            if (choice.var) {
-                Object.entries(choice.var).forEach(([key, val]) => {
-                    currentState.variables[key] += val;
-                });
-            }
-            
-            // 处理结局
-            if (choice.next.startsWith('END')) {
-                showEnding(choice.next);
+// 显示结局
+function showEnding(ending) {
+    gameState.currentScene = ending.id;
+    currentStep = 0; // 重置步骤索引
+    const bgPath = gameData.meta.resources.backgrounds[ending.bg];
+
+    // 渲染背景
+    document.getElementById('scene-bg').src = bgPath;
+
+    // 渲染首步骤
+    renderNextStep(ending);
+}
+
+function renderNextStep(scene) {
+    const step = scene.steps[currentStep];
+    const textPanel = document.getElementById('text-panel');
+    textPanel.innerHTML = '';
+    // 清空选项和状态
+    document.getElementById('timer').innerHTML = '';
+
+    // 创建内容容器
+    const stepContainer = document.createElement('div');
+    stepContainer.className = 'step-container';
+
+    switch (step.type) {
+        case 'narration':
+            stepContainer.innerHTML = `
+        <div class="narration">${step.content}</div>
+      `;
+            break;
+
+        case 'dialogue':
+            stepContainer.innerHTML = `
+        <div class="dialogue-bubble">
+          <div class="speaker">${step.speaker}</div>
+          <div class="content">${step.content}</div>
+        </div>
+      `;
+            break;
+
+        case 'inner':
+            stepContainer.innerHTML = `
+        <div class="inner-thought">${step.content}</div>
+      `;
+            break;
+
+        case 'qte':
+            handleQTE(step);
+            break;
+
+        case 'action':
+            const choices = document.createElement('div');
+            choices.className = 'choices';
+            step.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.textContent = choice.text;
+                btn.onclick = () => handleChoice(choice);
+                choices.appendChild(btn);
+            });
+            stepContainer.appendChild(choices);
+            break;
+    }
+
+    // 添加点击继续功能（非选项步骤）
+    if (step.type !== 'action' && step.type !== 'qte') {
+        stepContainer.onclick = () => {
+            if (currentStep < scene.steps.length - 1) {
+                currentStep++;
+                textPanel.innerHTML = '';
+                renderNextStep(scene);
             } else {
-                renderScene(choice.next);
-            }
-        }
-
-        // 倒计时处理
-        function startTimer(seconds) {
-            let time = seconds;
-            const timerId = setInterval(() => {
-                document.getElementById('timer').innerHTML = time;
-                if (time-- <= 0) {
-                    clearInterval(timerId);
-                    handleTimeout();
+                // 步骤结束后，进入下一个场景
+                if(scene.next){
+                  renderScene(scene.next);
+                }else{
+                  // 步骤结束后没有后续
+                  console.warn("剧本断了！！！");
                 }
-            }, 1000);
-        }
+            }
+        };
+    }
 
-        // 显示结局
-        function showEnding(endId) {
-            const ending = gameData.endings[endId];
-            document.getElementById('main-text').innerHTML = ending.text;
-            document.getElementById('choices').innerHTML = '<button onclick="location.reload()">重新开始</button>';
-        }
+    textPanel.appendChild(stepContainer);
+}
 
-        // 初始化游戏
-        renderScene(currentState.scene);
+function handleChoice(choice) {
+    // 更新变量
+    Object.entries(choice.var).forEach(([key, val]) => {
+        gameState.variables[key] += val;
+    });
+
+    // 跳转到下一个场景
+    gameState.currentStep = 0;
+    renderScene(choice.next);
+}
+// 初始化游戏
+renderScene(gameState.currentScene);
     </script>
 </body>
 </html>
