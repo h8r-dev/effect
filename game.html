@@ -79,16 +79,21 @@
             background: rgba(255,255,255,0.2);
         }
 
-        #qte-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 32px;
-            color: #00ff00;
-            text-shadow: 0 0 10px rgba(0,255,0,0.5);
-            display: none;
-        }
+/* 确保QTE面板可见 */
+#qte-panel {
+    display: block !important; 
+    z-index: 1000;
+    background: rgba(0,0,0,0.9);
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+}
+
+/* 按钮禁用状态 */
+.qte-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
 
         #timer {
             position: absolute;
@@ -129,6 +134,47 @@
             background: #000;
             border-radius: 10px;
         }
+
+/* 新增QTE样式 */
+.qte-instruction {
+  text-align: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.8);
+  border-radius: 10px;
+}
+
+.correct-sequence {
+  font-size: 24px;
+  color: #f1c40f;
+  margin: 15px 0;
+}
+
+.qte-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.qte-btn {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  background: #3498db;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#qte-timer {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
+}
     </style>
 </head>
 <body>
@@ -146,8 +192,8 @@
             <div id="text-panel">
                 <div id="main-text"></div>
                 <div class="choices" id="choices"></div>
+                <div id="qte-panel"></div>
             </div>
-            <div id="qte-panel"></div>
             <div id="timer"></div>
         </div>
     </div>
@@ -185,7 +231,6 @@
         {
           "text": "转身对峙",
           "var": {"courage": +2},
-          "qte": "→→←",
           "next": "S2B"
         }
       ]
@@ -211,7 +256,11 @@
       "id": "S2B",
       "text": "对方亮出匕首！快速做出反应...",
       "bg": "street",
-      "qte": "←→←→",
+      "qte": {
+        "prompt": "请在5秒内按顺序执行动作",
+        "actions": ["闪","避","格","挡","击"], // 正确顺序
+        "timeLimit": 5
+      },
       "success": "S3",
       "fail": "S4"
     },
@@ -256,6 +305,129 @@
     }
   }
 };
+
+
+// 新增QTE游戏状态
+let qteState = {
+  isActive: false,
+  correctOrder: [],
+  userInput: [],
+  timer: null
+};
+
+// 修改后的QTE处理函数
+function handleQTE(qteData) {
+    const qtePanel = document.getElementById('qte-panel');
+    qtePanel.style.display = 'block'; // 确保显示面板
+    
+    // 清空旧内容
+    qtePanel.innerHTML = `
+        <div class="qte-instruction">
+            <p>${qteData.prompt}</p>
+            <div class="correct-sequence">正确顺序：${qteData.actions.join(' → ')}</div>
+            <button id="startQTE">开始挑战</button>
+        </div>
+    `;
+
+    // 绑定开始按钮事件
+    document.getElementById('startQTE').addEventListener('click', () => {
+        startQTEChallenge(qteData);
+    });
+}
+
+function startQTEChallenge(qteData) {
+  qteState = {
+    isActive: true,
+    correctOrder: qteData.actions,
+    userInput: [],
+    timer: null
+  };
+
+  const shuffledActions = shuffle([...qteData.actions]);
+  
+  const qtePanel = document.getElementById('qte-panel');
+  qtePanel.innerHTML = `
+    <div class="qte-grid">
+      ${shuffledActions.map(action => `
+        <button class="qte-btn" data-action="${action}">${action}</button>
+      `).join('')}
+    </div>
+    <div id="qte-timer" style="color:white;">剩余时间: ${qteData.timeLimit}</div>
+  `;
+
+  document.querySelectorAll('.qte-btn').forEach(btn => {
+    btn.onclick = () => handleQTEClick(btn, qteData);
+  });
+
+  // 启动倒计时
+  let timeLeft = qteData.timeLimit;
+  qteState.timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('qte-timer').textContent = `剩余时间: ${timeLeft}`;
+    
+    if(timeLeft <= 0) {
+      endQTEChallenge(false);
+    }
+  }, 1000);
+}
+
+function handleQTEClick(btn, qteData) {
+  if(!qteState.isActive) return;
+
+  const selectedAction = btn.dataset.action;
+  const expectedAction = qteState.correctOrder[qteState.userInput.length];
+
+  if(selectedAction === expectedAction) {
+    btn.style.background = '#2ecc71';
+    qteState.userInput.push(selectedAction);
+    
+    if(qteState.userInput.length === qteState.correctOrder.length) {
+      endQTEChallenge(true);
+    }
+  } else {
+    btn.style.background = '#e74c3c';
+    endQTEChallenge(false);
+  }
+
+  btn.disabled = true;
+}
+
+// 修改endQTEChallenge函数
+function endQTEChallenge(isSuccess) {
+  clearInterval(qteState.timer);
+  qteState.isActive = false;
+
+  // 获取当前场景数据
+  const currentScene = gameData.script.find(
+    s => s.id === currentState.scene
+  );
+
+  const qtePanel = document.getElementById('qte-panel');
+  if(isSuccess) {
+    qtePanel.innerHTML = '<div style="color:#2ecc71">挑战成功！</div>';
+    // 使用currentScene.success跳转
+    setTimeout(() => renderScene(currentScene.success), 1000);
+  } else {
+    qtePanel.innerHTML = `
+      <div style="color:#e74c3c">挑战失败！</div>
+      <button onclick="retryQTE()">重试</button>
+    `;
+  }
+}
+
+// 修改retryQTE函数
+function retryQTE() {
+  const currentScene = gameData.script.find(
+    s => s.id === currentState.scene
+  );
+  handleQTE(currentScene.qte);
+}
+
+// 工具函数
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
 function checkCondition(conditionStr) {
     if (!conditionStr) return true; // 无条件则显示
     const conditions = conditionStr.split('&&').map(c => c.trim());
@@ -282,6 +454,8 @@ function checkCondition(conditionStr) {
 
         // 核心运行引擎
         function renderScene(sceneId) {
+              console.log('场景跳转:', currentState.scene, '->', sceneId); // 调试日志
+  currentState.scene = sceneId;
             const scene = gameData.script.find(s => s.id === sceneId);
             const bgPath = gameData.meta.resources.backgrounds[scene.bg];
             
@@ -294,10 +468,13 @@ function checkCondition(conditionStr) {
             document.getElementById('qte-panel').style.display = 'none';
             document.getElementById('timer').innerHTML = '';
 
-            // 处理QTE
-            if (scene.qte) {
-                handleQTE(scene.qte);
-            }
+    // QTE 处理逻辑修正
+    if (scene.qte) {
+        document.getElementById('qte-panel').style.display = 'block';
+        handleQTE(scene.qte);
+    } else {
+        document.getElementById('qte-panel').style.display = 'none';
+    }
             
             // 处理倒计时
             if (scene.timer) {
@@ -335,25 +512,6 @@ function checkCondition(conditionStr) {
             } else {
                 renderScene(choice.next);
             }
-        }
-
-        // QTE处理
-        function handleQTE(sequence) {
-            const qtePanel = document.getElementById('qte-panel');
-            qtePanel.style.display = 'block';
-            qtePanel.innerHTML = sequence.split('').join(' ');
-
-            let input = [];
-            document.addEventListener('keydown', function keyHandler(e) {
-                const keyMap = {37: '←', 38: '↑', 39: '→', 40: '↓'};
-                if (keyMap[e.keyCode]) {
-                    input.push(keyMap[e.keyCode]);
-                    if (input.join('') === sequence) {
-                        renderScene(currentScene.success);
-                        document.removeEventListener('keydown', keyHandler);
-                    }
-                }
-            });
         }
 
         // 倒计时处理
